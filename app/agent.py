@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .tools import get_metric_snapshot, search_docs, search_logs
-from .llm import chat as llm_chat, enabled as llm_enabled
+from .llm import chat as llm_chat, enabled as llm_enabled, select_tools
 
 
 @dataclass
@@ -30,6 +30,13 @@ class AnalysisResult:
 
 def choose_tools(question: str) -> list[str]:
     """Choose tools from intent; this is the seam for LLM tool selection."""
+    if llm_enabled():
+        try:
+            selected = select_tools(question)
+            if selected:
+                return list(dict.fromkeys(selected))
+        except Exception:
+            pass
     q = question.lower()
     tools = ["search_docs"]
     if any(word in q for word in ("日志", "timeout", "500", "错误码", "error", "connection")):

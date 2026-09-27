@@ -26,3 +26,15 @@ def chat(messages: list[dict], tools: list[dict] | None = None) -> dict:
     request = Request(f"{base_url}/chat/completions", data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.environ['API_KEY']}"}, method="POST")
     with urlopen(request, timeout=60) as response:
         return json.loads(response.read().decode())
+
+
+def select_tools(question: str) -> list[str]:
+    """Ask the model to select only from the registered diagnostic tools."""
+    tools = [
+        {"type": "function", "function": {"name": "search_docs", "description": "检索研发技术文档", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}}}},
+        {"type": "function", "function": {"name": "search_logs", "description": "查询服务日志", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}}}},
+        {"type": "function", "function": {"name": "get_metric_snapshot", "description": "查询服务指标快照", "parameters": {"type": "object", "properties": {"service": {"type": "string"}}}}},
+    ]
+    result = chat([{"role": "system", "content": "根据问题选择需要的诊断工具。只调用必要工具，不要回答问题。"}, {"role": "user", "content": question}], tools)
+    calls = result.get("choices", [{}])[0].get("message", {}).get("tool_calls", [])
+    return [call["function"]["name"] for call in calls if call.get("function", {}).get("name") in {"search_docs", "search_logs", "get_metric_snapshot"}]
