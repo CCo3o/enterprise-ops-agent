@@ -2,6 +2,7 @@ import unittest
 
 from app.agent import analyze, choose_tools
 from app.tools import search_docs
+from app.api import ChatRequest, chat
 
 
 class AgentTest(unittest.TestCase):
@@ -23,6 +24,14 @@ class AgentTest(unittest.TestCase):
         hits = search_docs("数据库连接池耗尽")
         self.assertTrue(hits)
         self.assertEqual(hits[0]["source"], "order-api.md")
+
+    def test_chat_persists_history_and_trace(self):
+        first = chat(ChatRequest(message="为什么订单接口返回 500？"))
+        second = chat(ChatRequest(message="先检查什么？", session_id=first.session_id))
+        self.assertEqual(first.session_id, second.session_id)
+        self.assertEqual(len(second.history), 4)
+        self.assertTrue(first.trace_id)
+        self.assertGreaterEqual(first.latency_ms, 0)
 
 
 if __name__ == "__main__":

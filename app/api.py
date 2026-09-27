@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 from pathlib import Path
+from time import perf_counter
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -14,9 +15,9 @@ from pydantic import BaseModel, Field
 
 from .agent import analyze
 from .llm import enabled as llm_enabled
+from .store import add_message, add_trace, get_history
 
 app = FastAPI(title="Enterprise Ops Agent", version="0.1.0")
-sessions: dict[str, list[dict[str, str]]] = {}
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DOCUMENTS_DIR = Path(__file__).resolve().parents[1] / "data" / "documents"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -29,6 +30,9 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     session_id: str
+    trace_id: str
+    latency_ms: int
+    model_mode: str
     answer: dict
     history: list[dict[str, str]]
 
@@ -74,13 +78,19 @@ if multipart is not None:
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest) -> ChatResponse:
+    started = perf_counter()
     session_id = request.session_id or str(uuid4())
-    history = sessions.setdefault(session_id, [])
-    history.append({"role": "user", "content": request.message})
+    trace_id = str(uuid4())
+    add_message(session_id, "user", request.message)
+    history = get_history(session_id)
     # Keep user turns as context; feeding the previous answer back as a question
     # makes a deterministic agent repeat its conclusion.
     context = "\n".join(item["content"] for item in history if item["role"] == "user")
     result = analyze(context)
     answer = result.as_dict()
-    history.append({"role": "assistant", "content": result.findings[0]})
-    return ChatResponse(session_id=session_id, answer=answer, history=history)
+    add_message(session_id, "assistant", result.findings[0])
+    history = get_history(session_id)
+    latency_ms = round((perf_counter() - started) * 1000)
+    mode = "model" if llm_enabled() else "offline-fallback"
+    add_trace(trace_id, session_id, latency_ms, result.plan, mode)
+    return ChatResponse(session_id=session_id, trace_id=trace_id, latency_ms=latency_ms, model_mode=mode, answer=answer, history=history)

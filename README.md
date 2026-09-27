@@ -26,6 +26,7 @@ app/
   api.py            # FastAPI、/chat、多轮会话
   cli.py            # 命令行调试入口
   static/           # 聊天网页
+  store.py          # SQLite 会话与调用轨迹
 data/
   documents/        # API、部署、数据库和故障复盘资料
   logs.jsonl        # 模拟结构化日志
@@ -102,6 +103,8 @@ POST /chat
 ```
 
 首次请求会返回 `session_id`，后续请求携带相同 ID 即可继续追问。高风险命令只展示，不会自动执行。
+
+响应还包含 `trace_id`、`latency_ms` 和 `model_mode`。会话与调用轨迹保存在本地 SQLite 中，服务重启后仍可继续会话。
 
 ## Render 部署
 
