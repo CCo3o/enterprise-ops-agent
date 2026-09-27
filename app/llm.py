@@ -38,3 +38,14 @@ def select_tools(question: str) -> list[str]:
     result = chat([{"role": "system", "content": "根据问题选择需要的诊断工具。只调用必要工具，不要回答问题。"}, {"role": "user", "content": question}], tools)
     calls = result.get("choices", [{}])[0].get("message", {}).get("tool_calls", [])
     return [call["function"]["name"] for call in calls if call.get("function", {}).get("name") in {"search_docs", "search_logs", "get_metric_snapshot"}]
+
+
+def embeddings(texts: list[str]) -> list[list[float]]:
+    if not enabled():
+        raise RuntimeError("模型未启用")
+    base_url = os.getenv("MODEL_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    payload = {"model": os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"), "input": texts}
+    request = Request(f"{base_url}/embeddings", data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.environ['API_KEY']}"}, method="POST")
+    with urlopen(request, timeout=60) as response:
+        data = json.loads(response.read().decode())["data"]
+    return [item["embedding"] for item in sorted(data, key=lambda item: item["index"])]

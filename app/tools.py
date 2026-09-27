@@ -5,6 +5,8 @@ import json
 import math
 import re
 from collections import Counter
+
+from .llm import embeddings, enabled as llm_enabled
 from pathlib import Path
 
 
@@ -48,6 +50,20 @@ def search_docs(query: str, limit: int = 5) -> list[dict]:
     documents: list[tuple[str, str]] = []
     for path in sorted((DATA_DIR / "documents").glob("*.md")):
         documents.append((path.name, path.read_text(encoding="utf-8")))
+
+    if llm_enabled():
+        try:
+            vectors = embeddings([query] + [text for _, text in documents])
+            query_vector = vectors[0]
+            def cosine(vector: list[float]) -> float:
+                dot = sum(a * b for a, b in zip(query_vector, vector))
+                left = math.sqrt(sum(a * a for a in query_vector))
+                right = math.sqrt(sum(b * b for b in vector))
+                return dot / (left * right) if left and right else 0.0
+            scored = sorted(((cosine(vector), source, content) for (source, content), vector in zip(documents, vectors[1:])), reverse=True)
+            return [{"source": source, "score": round(score, 4), "content": content} for score, source, content in scored[:limit] if score > 0]
+        except Exception:
+            pass
 
     def tokenize(text: str) -> list[str]:
         words = re.findall(r"[a-zA-Z0-9_/-]+|[\u4e00-\u9fff]", text.lower())
