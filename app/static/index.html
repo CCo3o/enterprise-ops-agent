@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>研发故障排查 Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">O</span><div><strong>Ops Agent</strong><small>研发智能工作台</small></div></div>
+      <button id="newChat" class="new-chat">＋ 新建排查会话</button>
+      <nav>
+        <p class="nav-title">能力</p>
+        <div class="nav-item active">故障分析</div>
+        <div class="nav-item">知识库检索 <span>RAG</span></div>
+        <div class="nav-item">日志与指标</div>
+      </nav>
+      <div class="status"><i></i><div><strong>系统正常</strong><small>本地知识库 · 安全模式</small></div></div>
+    </aside>
+
+    <main>
+      <header><div><h1>研发故障排查</h1><p>结合技术文档、日志与指标定位问题</p></div><a href="/docs" target="_blank">API 文档 ↗</a></header>
+      <section id="chat" class="chat">
+        <div id="welcome" class="welcome">
+          <div class="hero-icon">◎</div>
+          <h2>今天要排查什么问题？</h2>
+          <p>描述服务异常，Agent 会检索知识库并给出带证据的分析报告。</p>
+          <div class="examples">
+            <button>为什么订单接口返回 500？</button>
+            <button>POST /orders 延迟突然升高</button>
+            <button>数据库连接池是否已经耗尽？</button>
+          </div>
+        </div>
+      </section>
+      <footer>
+        <form id="chatForm">
+          <textarea id="message" rows="1" maxlength="2000" placeholder="描述故障现象，例如：订单接口频繁超时……"></textarea>
+          <button id="send" type="submit" aria-label="发送">↑</button>
+        </form>
+        <p>Agent 只生成排查建议与命令，不会执行高风险操作。</p>
+      </footer>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
