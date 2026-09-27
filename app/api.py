@@ -42,26 +42,33 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post("/documents")
-async def upload_document(file: UploadFile = File(...)) -> dict[str, str]:
-    """Store Markdown, text, or PDF content for subsequent RAG queries."""
-    suffix = Path(file.filename or "").suffix.lower()
-    if suffix not in {".md", ".txt", ".pdf"}:
-        raise HTTPException(status_code=400, detail="只支持 .md、.txt 和 .pdf 文件")
-    target = DOCUMENTS_DIR / Path(file.filename or "document").name
-    content = await file.read()
-    if suffix == ".pdf":
-        try:
-            from pypdf import PdfReader
-            import io
-            text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(content)).pages)
-        except ImportError as exc:
-            raise HTTPException(status_code=500, detail="PDF 解析依赖未安装") from exc
-        target = target.with_suffix(".md")
-        target.write_text(f"# {target.stem}\n\n{text}", encoding="utf-8")
-    else:
-        target.write_bytes(content)
-    return {"status": "ok", "filename": target.name, "message": "文档已加入知识库"}
+try:
+    import multipart  # type: ignore
+except ImportError:
+    multipart = None
+
+
+if multipart is not None:
+    @app.post("/documents")
+    async def upload_document(file: UploadFile = File(...)) -> dict[str, str]:
+        """Store Markdown, text, or PDF content for subsequent RAG queries."""
+        suffix = Path(file.filename or "").suffix.lower()
+        if suffix not in {".md", ".txt", ".pdf"}:
+            raise HTTPException(status_code=400, detail="只支持 .md、.txt 和 .pdf 文件")
+        target = DOCUMENTS_DIR / Path(file.filename or "document").name
+        content = await file.read()
+        if suffix == ".pdf":
+            try:
+                from pypdf import PdfReader
+                import io
+                text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(content)).pages)
+            except ImportError as exc:
+                raise HTTPException(status_code=500, detail="PDF 解析依赖未安装") from exc
+            target = target.with_suffix(".md")
+            target.write_text(f"# {target.stem}\n\n{text}", encoding="utf-8")
+        else:
+            target.write_bytes(content)
+        return {"status": "ok", "filename": target.name, "message": "文档已加入知识库"}
 
 
 @app.post("/chat", response_model=ChatResponse)
