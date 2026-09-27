@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .agent import analyze
+from .llm import enabled as llm_enabled
 
 app = FastAPI(title="Enterprise Ops Agent", version="0.1.0")
 sessions: dict[str, list[dict[str, str]]] = {}
@@ -39,7 +40,7 @@ def index() -> FileResponse:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "model": "enabled" if llm_enabled() else "offline-fallback"}
 
 
 try:

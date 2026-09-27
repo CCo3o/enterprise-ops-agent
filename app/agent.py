@@ -6,10 +6,12 @@ stable.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Any
 
 from .tools import get_metric_snapshot, search_docs, search_logs
+from .llm import chat as llm_chat, enabled as llm_enabled
 
 
 @dataclass
@@ -66,6 +68,20 @@ def analyze(question: str, service: str = "order-api") -> AnalysisResult:
         findings.append("日志显示存在数据库连接超时，需要优先检查数据库可用性、连接池和慢查询。")
     else:
         findings.append("当前证据不足以确认根因，需要补充对应时间窗口的应用日志和指标。")
+
+    # Optional model synthesis: the deterministic report remains the fallback
+    # when no provider is configured or the provider is temporarily unavailable.
+    if llm_enabled():
+        try:
+            response = llm_chat([
+                {"role": "system", "content": "你是企业研发故障排查助手。只基于给定证据回答，中文简洁输出一条根因判断，不要编造证据。"},
+                {"role": "user", "content": json.dumps({"question": question, "evidence": evidence, "baseline": findings[0]}, ensure_ascii=False)},
+            ])
+            model_text = response["choices"][0]["message"].get("content", "").strip()
+            if model_text:
+                findings[0] = model_text
+        except Exception:
+            pass
 
     steps = [
         "确认故障时间窗口内连接池使用数、等待数和数据库连接数。",

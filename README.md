@@ -87,6 +87,10 @@ uvicorn app.api:app --reload
 
 网页左侧支持上传 Markdown、TXT 和 PDF；PDF 会提取文字后加入本地知识库，下一次提问即可参与检索。
 
+## 模型模式
+
+默认 `MODEL_PROVIDER=local`，使用可重复的离线规则模式，不需要密钥。接入 OpenAI 兼容模型时，在本地 `.env` 或 Render 环境变量中设置 `MODEL_PROVIDER=openai`、`MODEL_NAME`、`MODEL_BASE_URL` 和 `API_KEY`；密钥只放在环境变量中，不提交到 GitHub。`/health` 会返回当前模式。
+
 ## API 示例
 
 ```json
