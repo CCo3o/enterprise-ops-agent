@@ -41,4 +41,11 @@ form.addEventListener('submit', event => { event.preventDefault(); const message
 input.addEventListener('keydown', event => { if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();form.requestSubmit();} });
 document.querySelectorAll('.examples button').forEach(button => button.addEventListener('click', () => ask(button.textContent)));
 document.querySelector('#newChat').addEventListener('click', () => { localStorage.removeItem('ops_session_id'); sessionId=null; location.reload(); });
+document.querySelector('#upload').addEventListener('change', async event => {
+  const file = event.target.files[0]; if (!file) return;
+  const body = new FormData(); body.append('file', file);
+  try { const response = await fetch('/documents', {method:'POST', body}); const data = await response.json(); if (!response.ok) throw new Error(data.detail || '上传失败'); alert(`${data.filename} 已加入知识库`); }
+  catch (error) { alert(error.message); }
+  event.target.value = '';
+});
 document.addEventListener('click', event => { if(event.target.classList.contains('copy')){navigator.clipboard.writeText(event.target.dataset.command);event.target.textContent='已复制';setTimeout(()=>event.target.textContent='复制',1200);} });

@@ -85,6 +85,8 @@ uvicorn app.api:app --reload
 
 当前 RAG 使用本地 TF-IDF 向量检索，适合离线 MVP。后续可把 `search_docs` 替换为 embedding + Chroma/pgvector，而不改变 Agent 和 API 契约。
 
+网页左侧支持上传 Markdown、TXT 和 PDF；PDF 会提取文字后加入本地知识库，下一次提问即可参与检索。
+
 ## API 示例
 
 ```json
@@ -96,6 +98,10 @@ POST /chat
 ```
 
 首次请求会返回 `session_id`，后续请求携带相同 ID 即可继续追问。高风险命令只展示，不会自动执行。
+
+## Render 部署
+
+仓库包含 `render.yaml`。在 Render 中连接 GitHub 仓库 `CCo3o/enterprise-ops-agent`，选择 Blueprint 部署即可。部署完成后会获得一个公网网址；本地的 `127.0.0.1` 只对当前电脑有效。
 
 ## 当前限制与后续计划
 

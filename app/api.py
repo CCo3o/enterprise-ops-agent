@@ -7,7 +7,7 @@ from __future__ import annotations
 from uuid import uuid4
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -17,6 +17,7 @@ from .agent import analyze
 app = FastAPI(title="Enterprise Ops Agent", version="0.1.0")
 sessions: dict[str, list[dict[str, str]]] = {}
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+DOCUMENTS_DIR = Path(__file__).resolve().parents[1] / "data" / "documents"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
@@ -39,6 +40,28 @@ def index() -> FileResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/documents")
+async def upload_document(file: UploadFile = File(...)) -> dict[str, str]:
+    """Store Markdown, text, or PDF content for subsequent RAG queries."""
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in {".md", ".txt", ".pdf"}:
+        raise HTTPException(status_code=400, detail="只支持 .md、.txt 和 .pdf 文件")
+    target = DOCUMENTS_DIR / Path(file.filename or "document").name
+    content = await file.read()
+    if suffix == ".pdf":
+        try:
+            from pypdf import PdfReader
+            import io
+            text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(content)).pages)
+        except ImportError as exc:
+            raise HTTPException(status_code=500, detail="PDF 解析依赖未安装") from exc
+        target = target.with_suffix(".md")
+        target.write_text(f"# {target.stem}\n\n{text}", encoding="utf-8")
+    else:
+        target.write_bytes(content)
+    return {"status": "ok", "filename": target.name, "message": "文档已加入知识库"}
 
 
 @app.post("/chat", response_model=ChatResponse)

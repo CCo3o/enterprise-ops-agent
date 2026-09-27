@@ -8,6 +8,7 @@ body { margin:0; font-family:Inter,"Microsoft YaHei",system-ui,sans-serif; color
 .brand strong,.brand small,.status strong,.status small { display:block; }
 .brand small,.status small { color:#95a4ba; margin-top:3px; font-size:12px; }
 .new-chat { background:#fff; color:#13223d; border:0; border-radius:10px; padding:12px; font-weight:700; cursor:pointer; }
+.upload-btn { display:block; margin-top:10px; padding:10px; text-align:center; border:1px dashed #587092; border-radius:9px; color:#b8c5d8; font-size:13px; cursor:pointer; }.upload-btn input{display:none}
 nav { margin-top:30px; }.nav-title { color:#71839e; font-size:12px; padding:0 12px; text-transform:uppercase; }
 .nav-item { padding:11px 12px; border-radius:8px; margin:4px 0; color:#b8c5d8; font-size:14px; }
 .nav-item.active { background:#172c4c; color:white; }.nav-item span { float:right; font-size:10px; background:#234b83; padding:2px 5px; border-radius:4px; }
