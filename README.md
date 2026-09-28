@@ -109,7 +109,7 @@ POST /chat
 
 ## Render 部署
 
-仓库包含 `render.yaml`。在 Render 中连接 GitHub 仓库 `CCo3o/enterprise-ops-agent`，选择 Blueprint 部署即可。部署完成后会获得一个公网网址；本地的 `127.0.0.1` 只对当前电脑有效。
+仓库包含 `render.yaml`。在 Render 中连接 GitHub 仓库 `CCo3o/enterprise-ops-agent`，选择 Blueprint 部署即可。部署完成后会获得一个公网网址；本地的 `127.0.0.1` 只对当前电脑有效。首次部署默认是 `MODEL_PROVIDER=local`；部署完成后可在 Render Environment 中填写 `API_KEY` 并将 `MODEL_PROVIDER` 改为 `openai`，重新部署即可启用真实模型。
 
 ## 当前限制与后续计划
 
