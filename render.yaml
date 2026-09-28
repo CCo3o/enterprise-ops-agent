@@ -8,10 +8,12 @@ services:
     plan: free
     envVars:
       - key: MODEL_PROVIDER
-        value: local
+        value: deepseek
       - key: MODEL_NAME
-        value: gpt-4o-mini
+        value: deepseek-chat
+      - key: MODEL_BASE_URL
+        value: https://api.deepseek.com
       - key: EMBEDDING_MODEL
-        value: text-embedding-3-small
+        value: ''
       - key: API_KEY
         sync: false
