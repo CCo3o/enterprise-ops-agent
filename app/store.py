@@ -26,6 +26,17 @@ def get_history(session_id: str, limit: int = 20) -> list[dict[str, str]]:
     return [{"role": role, "content": content} for role, content in reversed(rows)]
 
 
+def list_sessions(limit: int = 20) -> list[dict[str, str]]:
+    """Return recent conversations for the sidebar history."""
+    with _connect() as connection:
+        rows = connection.execute(
+            """SELECT session_id, MAX(id), MIN(content), MAX(created_at)
+               FROM messages WHERE role='user' GROUP BY session_id
+               ORDER BY MAX(id) DESC LIMIT ?""", (limit,)
+        ).fetchall()
+    return [{"session_id": row[0], "title": row[2][:42], "updated_at": row[3]} for row in rows]
+
+
 def add_trace(trace_id: str, session_id: str, latency_ms: int, tools: list[str], model_mode: str) -> None:
     with _connect() as connection:
         connection.execute("INSERT INTO traces(trace_id, session_id, latency_ms, tools, model_mode) VALUES (?, ?, ?, ?, ?)", (trace_id, session_id, latency_ms, json.dumps(tools), model_mode))

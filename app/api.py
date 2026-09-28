@@ -15,7 +15,8 @@ from pydantic import BaseModel, Field
 
 from .agent import analyze
 from .llm import enabled as llm_enabled
-from .store import add_message, add_trace, get_history, recent_traces
+from .store import add_message, add_trace, get_history, list_sessions, recent_traces
+from .tools import get_metric_snapshot, search_docs, search_logs
 
 app = FastAPI(title="Enterprise Ops Agent", version="0.1.0")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -51,6 +52,26 @@ def health() -> dict[str, str]:
 def traces(limit: int = 20) -> dict[str, list[dict]]:
     """Return recent agent calls for local debugging and observability demos."""
     return {"items": recent_traces(min(max(limit, 1), 100))}
+
+
+@app.get("/sessions")
+def sessions(limit: int = 20) -> dict[str, list[dict]]:
+    return {"items": list_sessions(min(max(limit, 1), 50))}
+
+
+@app.get("/sessions/{session_id}")
+def session_history(session_id: str) -> dict[str, list[dict]]:
+    return {"items": get_history(session_id, 100)}
+
+
+@app.get("/knowledge/search")
+def knowledge_search(q: str = "", limit: int = 10) -> dict[str, list[dict]]:
+    return {"items": search_docs(q, min(max(limit, 1), 20))}
+
+
+@app.get("/observability")
+def observability() -> dict:
+    return {"metrics": get_metric_snapshot(), "logs": search_logs("", limit=50)}
 
 
 try:

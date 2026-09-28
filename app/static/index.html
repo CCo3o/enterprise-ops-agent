@@ -14,10 +14,11 @@
       <label class="upload-btn">↑ 上传知识文档<input id="upload" type="file" accept=".md,.txt,.pdf"></label>
       <nav>
         <p class="nav-title">能力</p>
-        <div class="nav-item active">故障分析</div>
-        <div class="nav-item">知识库检索 <span>RAG</span></div>
-        <div class="nav-item">日志与指标</div>
+        <div class="nav-item active" data-view="analysis">故障分析</div>
+        <div class="nav-item" data-view="knowledge">知识库检索 <span>RAG</span></div>
+        <div class="nav-item" data-view="observability">日志与指标</div>
       </nav>
+      <div class="history"><p class="nav-title">最近会话</p><div id="sessions"><small>暂无历史会话</small></div></div>
       <div class="status"><i></i><div><strong>系统正常</strong><small>本地知识库 · 安全模式</small></div></div>
     </aside>
 
