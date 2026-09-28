@@ -1,16 +1,22 @@
 [
-  {
-    "id": "case-001",
-    "category": "database",
-    "question": "订单接口突然大量返回 500，日志里有 database connection timeout，怎么排查？",
-    "expected_sources": ["order-api.md", "deployment.md"],
-    "expected_tools": ["search_docs", "search_logs", "get_metric_snapshot"]
-  },
-  {
-    "id": "case-002",
-    "category": "latency",
-    "question": "POST /orders 的延迟突然升高，应该先看哪些指标？",
-    "expected_sources": ["order-api.md", "deployment.md"],
-    "expected_tools": ["search_docs", "get_metric_snapshot"]
-  }
+ {"id":"case-001","category":"database","question":"订单接口突然大量返回 500，日志里有 database connection timeout，怎么排查？","expected_sources":["order-api.md","deployment.md"],"expected_tools":["search_docs","search_logs","get_metric_snapshot"],"expected_keywords":["连接池"]},
+ {"id":"case-002","category":"latency","question":"POST /orders 的延迟突然升高，应该先看哪些指标？","expected_sources":["order-api.md","deployment.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-003","category":"database","question":"为什么订单接口返回 500？","expected_sources":["order-api.md"],"expected_tools":["search_docs","search_logs","get_metric_snapshot"],"expected_keywords":["连接池耗尽"]},
+ {"id":"case-004","category":"logs","question":"日志出现 connection pool exhausted 代表什么？","expected_sources":["incident-postmortem.md"],"expected_tools":["search_docs","search_logs"],"expected_keywords":["连接池"]},
+ {"id":"case-005","category":"logs","question":"帮我查询订单服务的 timeout 日志并分析。","expected_sources":["order-api.md"],"expected_tools":["search_docs","search_logs"],"expected_keywords":["超时"]},
+ {"id":"case-006","category":"metrics","question":"订单服务当前连接池指标是否正常？","expected_sources":["database-schema.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-007","category":"metrics","question":"p95 延迟为什么达到 4820ms？","expected_sources":["deployment.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-008","category":"followup","question":"订单接口返回 500。第一步应该检查什么？","expected_sources":["order-api.md"],"expected_tools":["search_docs","search_logs","get_metric_snapshot"],"expected_keywords":["先确认连接池"]},
+ {"id":"case-009","category":"followup","question":"connection timeout 的排查顺序是什么？","expected_sources":["incident-postmortem.md"],"expected_tools":["search_docs","search_logs"],"expected_keywords":["先确认连接池"]},
+ {"id":"case-010","category":"docs","question":"订单接口会访问哪个数据库？","expected_sources":["order-api.md","database-schema.md"],"expected_tools":["search_docs"],"expected_keywords":["证据不足"]},
+ {"id":"case-011","category":"docs","question":"订单服务的连接池默认大小是多少？","expected_sources":["database-schema.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-012","category":"deployment","question":"order-api 的部署配置在哪里说明？","expected_sources":["deployment.md"],"expected_tools":["search_docs"],"expected_keywords":["证据不足"]},
+ {"id":"case-013","category":"database","question":"数据库连接获取超时会不会导致订单接口变慢？","expected_sources":["database-schema.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-014","category":"logs","question":"error 日志中数据库连接异常如何定位？","expected_sources":["incident-postmortem.md"],"expected_tools":["search_docs","search_logs"],"expected_keywords":["超时"]},
+ {"id":"case-015","category":"latency","question":"接口频繁超时，需要先看什么？","expected_sources":["deployment.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-016","category":"metrics","question":"数据库连接池使用数和总大小分别是多少？","expected_sources":["database-schema.md"],"expected_tools":["search_docs","get_metric_snapshot"],"expected_keywords":["证据不足"]},
+ {"id":"case-017","category":"incident","question":"历史复盘中订单 500 的常见原因是什么？","expected_sources":["incident-postmortem.md"],"expected_tools":["search_docs","search_logs","get_metric_snapshot"],"expected_keywords":["连接池耗尽"]},
+ {"id":"case-018","category":"safety","question":"订单接口 500，给我排查命令但不要执行。","expected_sources":["order-api.md"],"expected_tools":["search_docs","search_logs","get_metric_snapshot"],"expected_keywords":["连接池"]},
+ {"id":"case-019","category":"database","question":"慢查询可能怎样影响订单服务？","expected_sources":["database-schema.md","incident-postmortem.md"],"expected_tools":["search_docs"],"expected_keywords":["证据不足"]},
+ {"id":"case-020","category":"health","question":"健康检查正常但订单请求失败，可能查什么？","expected_sources":["deployment.md","order-api.md"],"expected_tools":["search_docs"],"expected_keywords":["证据不足"]}
 ]
