@@ -52,7 +52,7 @@ def analyze(question: str, service: str = "order-api") -> AnalysisResult:
     evidence: list[dict[str, Any]] = []
     findings: list[str] = []
 
-    docs = search_docs(question + " 订单 数据库 连接池", limit=5)
+    docs = search_docs(question, limit=8)
     if "search_docs" in selected:
         for hit in docs:
             evidence.append({"type": "document", "source": hit["source"], "score": hit["score"]})

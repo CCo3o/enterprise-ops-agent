@@ -17,6 +17,7 @@ nav { margin-top:30px; }.nav-title { color:#71839e; font-size:12px; padding:0 12
 main { display:grid; grid-template-rows:75px 1fr auto; min-width:0; }
 header { background:white; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; padding:0 34px; }
 header h1 { font-size:18px; margin:0 0 3px; } header p { color:var(--muted); margin:0; font-size:12px; } header a { color:var(--blue); text-decoration:none; font-size:13px; }
+.mode { margin-left:8px; padding:3px 7px; border-radius:10px; background:#eef3fb; color:#61708a; font-size:11px; }
 .chat { overflow:auto; padding:34px max(30px,calc((100% - 900px)/2)); }
 .welcome { text-align:center; margin:10vh auto 0; max-width:650px; }.hero-icon { margin:auto; width:54px; height:54px; border-radius:16px; display:grid; place-items:center; background:#e9f0ff; color:var(--blue); font-size:29px; }
 .welcome h2 { font-size:25px; margin:20px 0 8px; }.welcome>p { color:var(--muted); margin:0; }.examples { display:flex; gap:10px; justify-content:center; margin-top:28px; flex-wrap:wrap; }

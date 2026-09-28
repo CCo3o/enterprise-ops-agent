@@ -27,13 +27,15 @@ async function ask(message) {
   chat.appendChild(turn); chat.scrollTop = chat.scrollHeight;
   send.disabled = true;
   try {
-    const response = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message, session_id:sessionId})});
+    const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 65000);
+    const response = await fetch('/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message, session_id:sessionId}), signal:controller.signal}); clearTimeout(timeout);
     if (!response.ok) throw new Error(`请求失败（${response.status}）`);
     const data = await response.json();
     sessionId = data.session_id; localStorage.setItem('ops_session_id', sessionId);
     turn.querySelector('.loading').outerHTML = reportHtml(data.answer);
   } catch (error) {
-    turn.querySelector('.loading').textContent = `${error.message}，请确认后端服务正在运行。`;
+    const text = error.name === 'AbortError' ? '模型响应超时' : (error.message || '网络请求失败');
+    turn.querySelector('.loading').innerHTML = `${escapeHtml(text)}，请确认后端服务正在运行。 <button class="retry">重试</button>`;
   } finally { send.disabled = false; chat.scrollTop = chat.scrollHeight; }
 }
 
@@ -41,6 +43,7 @@ form.addEventListener('submit', event => { event.preventDefault(); const message
 input.addEventListener('keydown', event => { if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();form.requestSubmit();} });
 document.querySelectorAll('.examples button').forEach(button => button.addEventListener('click', () => ask(button.textContent)));
 document.querySelector('#newChat').addEventListener('click', () => { localStorage.removeItem('ops_session_id'); sessionId=null; location.reload(); });
+fetch('/health').then(response => response.json()).then(data => { document.querySelector('#mode').textContent = data.model === 'enabled' ? '模型模式' : '离线模式'; }).catch(() => { document.querySelector('#mode').textContent = '服务未连接'; });
 document.querySelector('#upload').addEventListener('change', async event => {
   const file = event.target.files[0]; if (!file) return;
   const body = new FormData(); body.append('file', file);
@@ -48,4 +51,4 @@ document.querySelector('#upload').addEventListener('change', async event => {
   catch (error) { alert(error.message); }
   event.target.value = '';
 });
-document.addEventListener('click', event => { if(event.target.classList.contains('copy')){navigator.clipboard.writeText(event.target.dataset.command);event.target.textContent='已复制';setTimeout(()=>event.target.textContent='复制',1200);} });
+document.addEventListener('click', event => { if(event.target.classList.contains('copy')){navigator.clipboard.writeText(event.target.dataset.command);event.target.textContent='已复制';setTimeout(()=>event.target.textContent='复制',1200);} if(event.target.classList.contains('retry')){const bubble=event.target.closest('.turn')?.querySelector('.user-bubble');if(bubble)ask(bubble.textContent);} });
