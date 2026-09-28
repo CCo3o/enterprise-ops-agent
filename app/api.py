@@ -43,6 +43,16 @@ def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/assets/style.css", include_in_schema=False)
+def stylesheet() -> FileResponse:
+    return FileResponse(STATIC_DIR / "style.css", media_type="text/css")
+
+
+@app.get("/assets/app.js", include_in_schema=False)
+def javascript() -> FileResponse:
+    return FileResponse(STATIC_DIR / "app.js", media_type="application/javascript")
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "model": "enabled" if llm_enabled() else "offline-fallback"}
