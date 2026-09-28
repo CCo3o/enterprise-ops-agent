@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from .agent import analyze
 from .llm import enabled as llm_enabled
-from .store import add_message, add_trace, get_history
+from .store import add_message, add_trace, get_history, recent_traces
 
 app = FastAPI(title="Enterprise Ops Agent", version="0.1.0")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -45,6 +45,12 @@ def index() -> FileResponse:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "model": "enabled" if llm_enabled() else "offline-fallback"}
+
+
+@app.get("/traces")
+def traces(limit: int = 20) -> dict[str, list[dict]]:
+    """Return recent agent calls for local debugging and observability demos."""
+    return {"items": recent_traces(min(max(limit, 1), 100))}
 
 
 try:

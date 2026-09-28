@@ -105,6 +105,7 @@ POST /chat
 首次请求会返回 `session_id`，后续请求携带相同 ID 即可继续追问。高风险命令只展示，不会自动执行。
 
 响应还包含 `trace_id`、`latency_ms` 和 `model_mode`。会话与调用轨迹保存在本地 SQLite 中，服务重启后仍可继续会话。
+访问 `/traces` 可查看最近的 Agent 调用轨迹，用于分析工具选择和响应耗时。
 
 ## Render 部署
 
